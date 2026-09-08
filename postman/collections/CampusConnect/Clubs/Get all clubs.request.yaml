@@ -1,0 +1,47 @@
+$kind: http-request
+url: 'http://localhost:5000/clubs'
+method: GET
+order: 1788489841916
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response time is under 1000ms', function () {
+        pm.expect(pm.response.responseTime).to.be.below(1000);
+      });
+
+      pm.test('Response is a JSON array', function () {
+        const data = pm.response.json();
+        pm.expect(data).to.be.an('array');
+      });
+
+      pm.test('Each club has required fields', function () {
+        const data = pm.response.json();
+        data.forEach((club) => {
+          pm.expect(club).to.have.property('id');
+          pm.expect(club).to.have.property('name');
+          pm.expect(club).to.have.property('category');
+          pm.expect(club).to.have.property('description');
+          pm.expect(club).to.have.property('members');
+        });
+      });
+
+      pm.test('Each club has valid field types', function () {
+        const data = pm.response.json();
+        data.forEach((club) => {
+          pm.expect(club.id).to.be.a('number');
+          pm.expect(club.name).to.be.a('string').and.not.empty;
+          pm.expect(club.category).to.be.a('string').and.not.empty;
+          pm.expect(club.description).to.be.a('string');
+          pm.expect(club.members).to.be.a('number');
+        });
+      });
+
+      pm.test('Response contains at least one club', function () {
+        const data = pm.response.json();
+        pm.expect(data.length).to.be.above(0);
+      });

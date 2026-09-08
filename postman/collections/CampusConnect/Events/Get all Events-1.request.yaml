@@ -1,0 +1,50 @@
+$kind: http-request
+name: Get all Events
+description: ""
+url: ' http://localhost:5000/events'
+method: GET
+order: 1856566497630049
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response is a JSON array', function () {
+        const data = pm.response.json();
+        pm.expect(data).to.be.an('array');
+      });
+
+      pm.test('Each event has required fields', function () {
+        const data = pm.response.json();
+
+        data.forEach((event) => {
+          pm.expect(event).to.have.property('id');
+          pm.expect(event).to.have.property('clubId');
+          pm.expect(event).to.have.property('title');
+          pm.expect(event).to.have.property('date');
+          pm.expect(event).to.have.property('seatsLeft');
+        });
+      });
+
+      pm.test('Event field types are valid', function () {
+        const data = pm.response.json();
+
+        data.forEach((event) => {
+          pm.expect(event.id).to.be.a('number');
+          pm.expect(event.clubId).to.be.a('number');
+          pm.expect(event.title).to.be.a('string');
+          pm.expect(event.date).to.be.a('string');
+          pm.expect(event.seatsLeft).to.be.a('number');
+        });
+      });
+
+      pm.test('seatsLeft is zero or greater', function () {
+        const data = pm.response.json();
+
+        data.forEach((event) => {
+          pm.expect(event.seatsLeft).to.be.at.least(0);
+        });
+      });
