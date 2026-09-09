@@ -1,6 +1,3 @@
-# Workbook Chapters 02, 05, 09, 11, 12 — the app entry point.
-# Registers extensions, blueprints, and consistent JSON error handlers.
-
 from flask import Flask, jsonify
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -18,6 +15,10 @@ def create_app():
     app.config.from_object(Config)
 
     db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
+
     Migrate(app, db)
     JWTManager(app)
     CORS(app, origins=app.config["CORS_ORIGINS"])
